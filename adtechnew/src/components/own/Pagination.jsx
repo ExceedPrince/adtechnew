@@ -1,9 +1,9 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from "../ui/button";
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import PaginationElement from "../own/PaginationElement";
 
-const Pagination = ({ pagination, page, setPage }) => {
+const Pagination = ({ pagination, page, setPage, canPaginate }) => {
 
     function changePage(value) {
         if (value === "left" && page > 1) {
@@ -16,8 +16,8 @@ const Pagination = ({ pagination, page, setPage }) => {
     }
     
     return (
-        <div id="pagination">
-            <Button className='pagination left' onClick={() => changePage("left")} variant="ghost" size="icon">
+        <div id="pagination" className={`flex flex-row flex-nowrap justify-center gap-2 transition-opacity ${!canPaginate && 'opacity-10 pointer-events-none'}`}>
+            <Button className={`pagination left ${page === 1 && 'opacity-10 pointer-events-none'}`} onClick={() => changePage("left")} variant="ghost" size="icon">
                 <ChevronLeft />
             </Button>
             {JSON.parse(localStorage.getItem("todoList")) && 
@@ -25,27 +25,28 @@ const Pagination = ({ pagination, page, setPage }) => {
                 Array(pagination).fill(1).map((num,i) => num + i).map((item, index) => {
 
                     if (index === 0 || index === pagination - 1 || item === page) {
-                        return (<span key={index} className='pagination pagination_number' onClick={() => setPage(item)}>{item}</span>)
+                        
+                        return <PaginationElement key={`pagination_${index}`} item={item} page={page} setPage={setPage} />
                     }
 
                     if(item === page - 1) {
                         return (
-                            <span key={index}>
+                            <span key={index} className='flex leading-10'>
                                 {(pagination > 3 && page === pagination) || (pagination > 4 && pagination - page >= 1) ? "..." : null}
-                                <span key={index} className='pagination pagination_number' onClick={() => setPage(item)}>{item}</span>
+                                <PaginationElement key={`pagination_${index}`} item={item} page={page} setPage={setPage} />
                             </span>
                         )
                     } else if (item === page + 1) {
                         return (
-                            <span key={index}>
-                                <span key={index} className='pagination pagination_number' onClick={() => setPage(item)}>{item}</span>
+                            <span key={index} className='flex leading-10 align-middle'>
+                                <PaginationElement key={`pagination_${index}`} item={item} page={page} setPage={setPage} />
                                 {(pagination > 3 && page === 1) || (pagination > 4 && pagination - page >= 2) ? "..." : null}
                             </span>
                         )
                     }
                 })
             }
-            <Button className='pagination right' onClick={() => changePage("right")} variant="ghost" size="icon">
+            <Button className={`pagination right ${page === pagination && 'opacity-10 pointer-events-none'}`} onClick={() => changePage("right")} variant="ghost" size="icon">
                 <ChevronRight />
             </Button>
         </div>
@@ -55,7 +56,8 @@ const Pagination = ({ pagination, page, setPage }) => {
 Pagination.propTypes = {
     pagination: PropTypes.number.isRequired, 
     page: PropTypes.number.isRequired, 
-    setPage: PropTypes.func.isRequired
+    setPage: PropTypes.func.isRequired,
+    canPaginate: PropTypes.bool.isRequired
 }
 
 export default Pagination
