@@ -13,6 +13,8 @@ import {
     FormMessage,
 } from "./components/ui/form";
 import { Input } from "./components/ui/input";
+import { useToast } from "./components/ui/use-toast";
+import { Toaster } from "./components/ui/toaster";
 import { PlusSquare } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import TodoCard from "./components/own/TodoCard";
@@ -26,6 +28,8 @@ const App = () => {
     const [todos, setTodos] = useState(localStorage.getItem("todoList") ? JSON.parse(localStorage.getItem("todoList")) : []);
     const [pagination, setPagination] = useState(0);
     const [page, setPage] = useState(1);
+
+    const { toast } = useToast();
 
     useEffect(() => {
         localStorage.setItem("todoList", JSON.stringify(todos));
@@ -44,23 +48,31 @@ const App = () => {
         e.preventDefault();
 
         if (e.target[0].value === "") {
-            console.log("empty!!!");
+            toast({
+                variant: "destructive",
+                description: "Empty todo cannot be submitted!"
+            });
             return;
         }
 
         const matches = todos.filter((todo) => todo.text === e.target[0].value);
 
         if (matches.length > 0) {
-            console.log("match!!!");
+            toast({
+                variant: "destructive",
+                description: "This todo already exists!"
+            });
             return;
         }
 
         const object = {
             id: `todo_${uuidv4()}`,
             text: e.target[0].value,
+            date: new Date().getTime()
         };
 
         setTodos((prevState) => [...prevState, object]);
+        toast({description: "New todo has been added to the list!"});
     }
 
     return (
@@ -85,11 +97,12 @@ const App = () => {
                 </form>
             </Form>
             <div id="todoList">
-                {todos && todos.slice((page - 1) * 10, page * 10 + 1).map((item, index) => (
-                    <TodoCard key={`todoCard_${index}`} context={item} setTodos={setTodos} />
+                {todos && todos.sort((a, b) => b.date - a.date).slice((page - 1) * 10, page * 10 + 1).map((item, index) => (
+                    <TodoCard key={`todoCard_${index}`} context={item} setTodos={setTodos} toast={toast} />
                 ))}
             </div>
             <Pagination pagination={pagination} page={page} setPage={setPage} />
+            <Toaster />
         </>
     );
 };
