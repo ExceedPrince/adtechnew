@@ -31,7 +31,7 @@ const App = () => {
     const [pagination, setPagination] = useState(0);
     const [page, setPage] = useState(1);
     const [canSubmit, setCanSubmit] = useState(false);
-    const [canPaginate, setCanPaginate] = useState(true);
+    const [editingNumber, setEditingNumber] = useState(0);
 
     const { toast } = useToast();
 
@@ -59,7 +59,7 @@ const App = () => {
             return;
         }
 
-        const matches = todos.filter((todo) => todo.text === e.target[0].value);
+        const matches = todos.filter((todo) => todo.text.toLowerCase().trim() === e.target[0].value.toLowerCase().trim());
 
         if (matches.length > 0) {
             toast({
@@ -103,10 +103,10 @@ const App = () => {
             </Form>
             <div id="todoList" className="mt-8">
                 {todos && todos.sort((a, b) => b.date - a.date).slice((page - 1) * 10, page * 10).map((item, index) => (
-                    <TodoCard key={`todoCard_${index}`} context={item} setTodos={setTodos} toast={toast} setCanPaginate={setCanPaginate} />
+                    <TodoCard key={`todoCard_${index}`} context={item} setTodos={setTodos} toast={toast} setEditingNumber={setEditingNumber} />
                 ))}
             </div>
-            {pagination > 1 && <Pagination pagination={pagination} page={page} setPage={setPage} canPaginate={canPaginate} />}
+            {pagination > 1 && <Pagination pagination={pagination} page={page} setPage={setPage} editingNumber={editingNumber} />}
             <Toaster />
         </>
     );

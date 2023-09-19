@@ -4,7 +4,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { MinusSquare, Check, RotateCw } from 'lucide-react';
 
-const TodoCard = ({ context, setTodos, toast, setCanPaginate }) => {
+const TodoCard = ({ context, setTodos, toast, setEditingNumber }) => {
 
     const [isEditing, setIsEditing] = useState(false);
     const [inputText, setInputText] = useState(context.text);
@@ -34,7 +34,7 @@ const TodoCard = ({ context, setTodos, toast, setCanPaginate }) => {
         }
 
         const currentTodos = JSON.parse(localStorage.getItem("todoList"));
-        const matches = currentTodos.filter((todo) => todo.text === inputText);
+        const matches = currentTodos.filter((todo) => todo.text.toLowerCase().trim() === inputText.toLowerCase().trim());
 
         if (matches.length > 0) {
             toast({
@@ -60,28 +60,34 @@ const TodoCard = ({ context, setTodos, toast, setCanPaginate }) => {
 
         setTodos(update);
         setIsEditing(false);
-        setCanPaginate(true);
+        setEditingNumber(prevState => prevState - 1);
 
         toast({description: "Todo is updated!"});
+    }
+
+    function customSubmit(e) {
+        if (e.keyCode === 13) {
+            editTodo(context.id);
+        }
     }
 
     return (
         <div id={context.id} className='todoCards p-2 flex flex-row justify-between items-center rounded-sm transition-all hover:bg-gray-100' >
             {!isEditing ? (
                 <>
-                    <span className='todoContext leading-10 text-base font-bold cursor-pointer' onClick={() => {setIsEditing(true); setInputText(context.text); setCanPaginate(false)}}>{context.text}</span>
+                    <span className='todoContext leading-10 text-base font-bold cursor-pointer' onClick={() => {setIsEditing(true); setInputText(context.text); setEditingNumber(prevState => prevState + 1)}}>{context.text}</span>
                     <Button type="button" className='deleteBtn' onClick={() => deleteTodo(context.id)} variant="ghost" size="icon">
                         <MinusSquare />
                     </Button>
                 </>
             ) : (
                 <>
-                    <Input type="text" className="mr-2" placeholder={context.text} value={inputText} onChange={(e) => setInputText(e.target.value)}/>
+                    <Input type="text" className="mr-2" placeholder={context.text} value={inputText} onChange={(e) => setInputText(e.target.value)} onKeyUp={(e) => customSubmit(e)} />
                     <div id="editBtns" className="flex flex-row flex-nowrap gap-2">
                         <Button type="button" onClick={() => editTodo(context.id)} size="icon">
                             <Check />
                         </Button>
-                        <Button type="button" onClick={() => {setIsEditing(false); setCanPaginate(true)}} variant="outline" size="icon">
+                        <Button type="button" onClick={() => {setIsEditing(false); setEditingNumber(prevState => prevState - 1);}} variant="outline" size="icon">
                             <RotateCw />
                         </Button>
                     </div>
@@ -95,7 +101,7 @@ TodoCard.propTypes = {
     context: PropTypes.object.isRequired,
     setTodos: PropTypes.func.isRequired,
     toast: PropTypes.func.isRequired,
-    setCanPaginate: PropTypes.func.isRequired
+    setEditingNumber: PropTypes.func.isRequired
 };
 
 export default TodoCard;

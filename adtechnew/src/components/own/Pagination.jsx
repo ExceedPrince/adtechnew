@@ -3,7 +3,7 @@ import { Button } from "../ui/button";
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import PaginationElement from "../own/PaginationElement";
 
-const Pagination = ({ pagination, page, setPage, canPaginate }) => {
+const Pagination = ({ pagination, page, setPage, editingNumber }) => {
 
     function changePage(value) {
         if (value === "left" && page > 1) {
@@ -16,7 +16,7 @@ const Pagination = ({ pagination, page, setPage, canPaginate }) => {
     }
     
     return (
-        <div id="pagination" className={`flex flex-row flex-nowrap justify-center gap-2 transition-opacity ${!canPaginate && 'opacity-10 pointer-events-none'}`}>
+        <div id="pagination" className={`flex flex-row flex-nowrap justify-center gap-2 transition-opacity ${editingNumber > 0 && 'opacity-10 pointer-events-none'}`}>
             <Button className={`pagination left ${page === 1 && 'opacity-10 pointer-events-none'}`} onClick={() => changePage("left")} variant="ghost" size="icon">
                 <ChevronLeft />
             </Button>
@@ -57,7 +57,7 @@ Pagination.propTypes = {
     pagination: PropTypes.number.isRequired, 
     page: PropTypes.number.isRequired, 
     setPage: PropTypes.func.isRequired,
-    canPaginate: PropTypes.bool.isRequired
+    editingNumber: PropTypes.number.isRequired
 }
 
 export default Pagination
